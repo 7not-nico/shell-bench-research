@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://7not-nico.github.io/shell-bench-research/sitemap.xml
