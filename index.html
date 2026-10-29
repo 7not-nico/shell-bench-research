@@ -57,5 +57,6 @@ linux-cachyos 7.3.0, x86_64, 2026-10-29. Reps: startup 20x <code>-c exit</code>;
 <h2>Verdict</h2>
 <p>Only POSIX/bash-compatible shells can run the workload — fish, nu, elvish, xonsh, tcsh are out regardless of speed. Dash is fastest on every axis but fails 6/12 bashisms (<code>[[ ]]</code>, arrays, <code>&lt;()</code>, <code>function kw</code>, <code>source</code>, <code>${V//pat/rep}</code>). Conclusion: bash stays pinned; shell overhead is ~1 ms against seconds of per-call latency either way.</p>
 <p class="foot">Harness: shellcommon.py + shellbench.py + shellrss2.py. wait4 maxrss lies on sub-tick processes — see repo note.</p>
+<!--BUILD:2026-10-29T19:27:10.575480-->Z
 </body>
 </html>
