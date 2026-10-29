@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>shell-bench-research — results</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#222}
+h1{font-size:1.5rem}h2{font-size:1.1rem;margin-top:1.6rem}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{border:1px solid #ddd;padding:.3rem .5rem;text-align:left;font-size:.9rem}
+th{background:#f6f8fa}.foot{margin-top:2rem;color:#666;font-size:.85rem}
+a{color:#0969da;text-decoration:none}
+</style>
+</head>
+<body>
+<h1>shell-bench-research</h1>
+<p>Which shell should run an agent's commands? Measured, not guessed.
+Full method + corpus in the <a href="https://github.com/7not-nico/shell-bench-research">repo</a>.
+linux-cachyos 7.3.0, x86_64, 2026-10-29. Reps: startup 20x <code>-c exit</code>; loop 5x 20k iters; spawn 5x 200x <code>/bin/true</code>. RSS via live psutil sampling.</p>
+<h2>Cold startup, median</h2>
+<table><tr><th>shell</th><th>median</th><th>procs</th></tr>
+<tr><td>dash 0.5.13</td><td>0.7 ms</td><td>1</td></tr>
+<tr><td>ksh 2020</td><td>1.0 ms</td><td>1</td></tr>
+<tr><td>bash 5.x</td><td>1.1 ms</td><td>1</td></tr>
+<tr><td>zsh 5.9.2</td><td>1.1 ms</td><td>1</td></tr>
+<tr><td>brush 0.4.0</td><td>1.5 ms</td><td>2</td></tr>
+<tr><td>elvish 0.21</td><td>3.0 ms</td><td>1</td></tr>
+<tr><td>nu 0.116</td><td>9.0 ms</td><td>2</td></tr>
+<tr><td>fish 4.9.3</td><td>18.7 ms</td><td>2</td></tr>
+<tr><td>tcsh 6.24</td><td>108 ms</td><td>2</td></tr>
+<tr><td>xonsh 0.25</td><td>262 ms</td><td>2</td></tr></table>
+<h2>Builtin loop 20k / external spawn 200x / RSS, medians</h2>
+<table><tr><th>shell</th><th>loop</th><th>spawn</th><th>RSS</th></tr>
+<tr><td>dash</td><td>0.025 s</td><td>0.084 s</td><td>2692 KiB</td></tr>
+<tr><td>bash</td><td>0.044 s</td><td>0.100 s</td><td>2724 KiB</td></tr>
+<tr><td>zsh</td><td>0.038 s</td><td>0.103 s</td><td>2720 KiB</td></tr>
+<tr><td>ksh</td><td>0.039 s</td><td>0.128 s</td><td>4452 KiB</td></tr>
+<tr><td>brush</td><td>0.233 s</td><td>0.160 s</td><td>7044 KiB</td></tr>
+<tr><td>elvish</td><td>0.518 s</td><td>0.094 s</td><td>14364 KiB</td></tr>
+<tr><td>nu</td><td>0.022 s</td><td>0.192 s</td><td>30040 KiB</td></tr>
+<tr><td>fish</td><td>0.651 s</td><td>0.133 s</td><td>10200 KiB</td></tr>
+<tr><td>tcsh</td><td>0.109 s</td><td>0.109 s</td><td>4856 KiB</td></tr>
+<tr><td>xonsh</td><td>0.262 s</td><td>6.47 s</td><td>42636 KiB</td></tr></table>
+<h2>Verdict</h2>
+<p>Only POSIX/bash-compatible shells can run the workload — fish, nu, elvish, xonsh, tcsh are out regardless of speed. Dash is fastest on every axis but fails 6/12 bashisms (<code>[[ ]]</code>, arrays, <code>&lt;()</code>, <code>function kw</code>, <code>source</code>, <code>${V//pat/rep}</code>). Conclusion: bash stays pinned; shell overhead is ~1 ms against seconds of per-call latency either way.</p>
+<p class="foot">Harness: shellcommon.py + shellbench.py + shellrss2.py. wait4 maxrss lies on sub-tick processes — see repo note.</p>
+</body>
+</html>
