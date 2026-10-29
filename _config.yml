@@ -2,6 +2,7 @@ title: shell-bench-research
 description: Shell spawn, loop and RSS benchmarks — which shell should run an agent's commands?
 baseurl: "/shell-bench-research"
 url: "https://7not-nico.github.io"
+theme: minima
 
 defaults:
   - scope:
