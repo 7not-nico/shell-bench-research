@@ -1,0 +1,22 @@
+# history persistence check — COMPLETE (lane blocked on sandbox fence; orchestrator collected /var/log evidence directly)
+
+## Units (all active)
+sysstat-collect.timer: active
+sysstat-summary.timer: active
+atop.service: active
+atopacct.service: active
+
+## sadc history (/var/log/sa/sa29 exists, 10-min samples)
+`sar -f /var/log/sa/sa29 -u`:
+12:30:12 all user=7.73 nice=1.07 system=2.79 iowait=0.34 idle=88.06
+12:40:00 all user=6.82 nice=2.67 system=3.69 iowait=0.60 idle=86.22
+
+## atop history (/var/log/atop/atop_20261029 exists, 10-min samples)
+`atopsar -r /var/log/atop/atop_20261029 -c`:
+12:27:14 all usr=80 nice=13 sys=16 irq=6 wait=4 idle=680 (per-CPU rows present)
+12:37:14 all usr=52 nice=21 sys=18 irq=6 wait=3 idle=698
+
+## Verdict
+Both collectors landed first samples within ~15 min of enablement.
+Post-incident reads work: `sar -f` for system history, `atopsar -r` for
+per-process history.

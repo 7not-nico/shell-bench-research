@@ -1,0 +1,42 @@
+# ru_maxrss anomaly — resolution note
+
+## Observation
+`os.wait4` `ru_maxrss` reported byte-identical peaks for different shells
+(earlier run: 15572 KiB for bash and brush across all samples), while live
+`psutil` sampling of held processes showed a real spread (bash 2688–2724,
+brush ~7044–7080, dash ~2728, fish ~10300 KiB).
+
+## Reproducer
+`/tmp/opencode/rusprobe.py`: 3x wait4 on `<sh> -c exit` (maxrss/minflt/majflt)
+plus one sleep-held psutil RSS per shell.
+
+Result (linux-cachyos 7.3.0, 2026-10-29):
+
+| shell | wait4 maxrss x3 | minflt | live RSS |
+|---|---|---|---|
+| bash | 15940 x3 | 167–170 | 2708 |
+| brush | 15940 x3 | 314–320 | 7080 |
+| dash | 15940 x3 | 106–107 | 2728 |
+| fish | 30780–30880 (varies) | ~2420 | 10308 |
+
+## Mechanism (settled by `/tmp/opencode/rusettle.py`)
+Two candidate mechanisms were on the table:
+
+- (a) Lane theory: wait4 reports a cumulative `RUSAGE_CHILDREN` monotonic max,
+  so a common leaf peak dominates every report. REFUTED: reaping a 60 MB
+  python child (maxrss 71476) followed by `dash -c exit` reports 12680 for
+  dash, not >= 71476. wait4 is per-child, not cumulative (the lane confused
+  it with getrusage(RUSAGE_CHILDREN); its probes were python-only forks, a
+  different experiment).
+- (b) Tick-granularity plateau: hiwater_rss refreshes at scheduler-tick
+  granularity, so sub-tick processes report a stale/quantized value.
+  SUPPORTED: fault counts prove the executions differ (bash 167 vs brush 314
+  vs dash 106 minflt) yet maxrss ties exactly; the plateau itself drifts
+  between runs (15572, then 15940, then dash 12680); longer-lived fish
+  (~20-30 ms, several ticks) reports true varying peaks. Exact kernel path
+  unverified (Phase-3 eBPF territory, not worth it).
+
+## Impact on the shell verdict
+None. All published rankings use live psutil RSS plus wall-clock timing.
+Rule: never use wait4/getrusage maxrss for processes living under ~1 tick;
+hold with sleep and sample live instead.

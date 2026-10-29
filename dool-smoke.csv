@@ -1,0 +1,8 @@
+"dool 1.3.8 CSV output"
+"Author:","Scott Baker",,,,"URL:","https://github.com/scottchiefbaker/dool/"
+"Host:","elite",,,,"User:","eddyr"
+"Cmdline:","/usr/bin/dool --output /tmp/opencode/dool-smoke.csv 1 2",,,,"Date:","29 Oct 2026 12:17:17 CST"
+"total cpu usage",,,,,"dsk/total",,"net/total",,"load avg",,,"system"
+"usr","sys","idl","wai","stl","read","writ","recv","send","1m","5m","15m","time"
+5.306,1.647,91.927,1.120,0,54262970.533,5918068.683,0,0,0.680,0.700,0.410,Oct-29 12:17:17
+2.989,0.623,96.389,0,0,0,0,31256,5488,0.680,0.700,0.410,Oct-29 12:17:18
